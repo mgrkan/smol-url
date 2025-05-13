@@ -22,6 +22,10 @@ def shorten_url(url: URL):
     short_id = shortuuid.uuid()[:8]
     redis_client.set(short_id, url.target_url)
     redis_client.set(f"visit:{short_id}", 0)
+    # expires in 2 hours
+    redis_client.expire(short_id, 60 * 60 * 2)
+    redis_client.expire(f"visit:{short_id}", 60 * 60 * 2)
+
     return {"short_id": short_id}
 
 @app.get("/{short_id}")
