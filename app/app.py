@@ -31,3 +31,10 @@ def redirect_to_url(short_id: str):
         redis_client.incr(f"visit:{short_id}")
         return RedirectResponse(url=url.decode('utf-8'))
     return {"error": "URL not found"}
+
+@app.get("/stats/{short_id}")
+def get_stats(short_id: str):
+    url = redis_client.get(short_id)
+    if url:
+        return {"url": url.decode('utf-8'), "visits": redis_client.get(f"visit:{short_id}")}
+    return {"error": "URL not found"}
