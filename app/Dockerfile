@@ -1,14 +1,20 @@
-FROM python:3.11
+FROM node:20-slim
 
-WORKDIR /code
+WORKDIR /app
 
-COPY ./requirements.txt /code/requirements.txt
+# Install dependencies
+COPY package*.json ./
+RUN npm ci
 
-RUN pip3 install --no-cache-dir --upgrade -r /code/requirements.txt
+# Copy the rest of the application
+COPY . .
 
-COPY ./app.py /code/app.py
+# Build the application
+RUN npm run build
 
-CMD ["fastapi", "run", "app.py", "--port", "8080"]
+# Expose port 3000
+EXPOSE 3000
 
-# If running behind a proxy like Nginx or Traefik add --proxy-headers
-# CMD ["fastapi", "run", "app/main.py", "--port", "80", "--proxy-headers"]
+# Start the app using the built Node.js server
+CMD ["node", "build"]
+
